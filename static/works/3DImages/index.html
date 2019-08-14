@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>3D图片展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0
+        }
+        body{
+            background-color:#000;
+            overflow: hidden;
+        }
+        .container {
+            perspective: 1800px; 
+        }
+
+        .container ul {
+            list-style: none;
+            height:260px;
+        }
+        .photo{
+            position:relative;
+            width:180px;
+            height:260px;
+            /* border:1px solid red; */
+            margin:150px auto;
+            transform-style: preserve-3d;  /*设置3d场景风格*/
+            transform:rotateX(-20deg) rotateY(0deg); 
+        }
+        .container ul img {
+            position:absolute;
+            width: 180px;
+            height: 260px;
+            box-shadow: 2px 2px 8px #fff;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body ondragstart="return false">
+    <div class="container">
+        <div class="photo">
+            <ul>
+                <li><img src="images/1.jpg" alt=""></li>
+                <li><img src="images/2.jpg" alt=""></li>
+                <li><img src="images/3.jpg" alt=""></li>
+                <li><img src="images/4.jpg" alt=""></li>
+                <li><img src="images/5.jpg" alt=""></li>
+                <li><img src="images/6.jpg" alt=""></li>
+                <li><img src="images/7.jpg" alt=""></li>
+                <li><img src="images/8.jpg" alt=""></li>
+                <li><img src="images/9.jpg" alt=""></li>
+                <li><img src="images/10.jpg" alt=""></li>
+            </ul>
+        </div>
+    </div>
+    <script>
+       var imgs = document.getElementsByTagName('img')
+       var num = imgs.length
+       //console.log(num)
+       window.onload = function(){
+
+           Array.prototype.forEach.call(imgs, function (item, index) {
+               //console.log(item)
+               item.style.transform = "rotateY(" + 360 / num * index + "deg) translateZ(350px)"
+               item.style.transition = "1s "+ (num-index)*0.1 +"s"
+           })
+           //拖拽
+            var rotateX = 0, rotateY = 0;
+           document.onmousedown = function(e){
+               console.log(e)
+              
+               var oldX = e.clientX,
+                   oldY = e.clientY
+                 console.log(oldX,oldY)
+                this.onmousemove = function(e){
+                    var newX = e.clientX,
+                        newY = e.clientY
+                    
+                    var movX = newX - oldX,
+                        movY = newY - oldY;
+
+                        rotateX += movY * 0.2,
+                        rotateY -= movX * 0.1
+
+                    console.log(movX, movY)
+                    oldX = newX
+                    oldY = newY
+                    document.getElementsByClassName('photo')[0].style.transform = "rotateX("+ rotateX+"deg) rotateY("+rotateY+"deg)"
+                }
+
+                this.onmouseup = function(){
+                    console.log(0);
+                    document.onmousemove = null
+                }
+           }
+       }
+      
+    
+    </script>
+</body>
+
+</html>

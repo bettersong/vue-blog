@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>3D档案库</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body ondragstart="return false" >
+    <!--  -->
+   <div id="main">
+       <div id="list">
+         <ul id="LiList">
+         </ul>
+         </div>
+      <div id="btn">
+        <ul>
+            <li>Grid</li>
+            <li>Helix</li>
+            <li>Sphere</li>
+            <li class="tab">Table</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    <script src="js/data.js"></script>
+    <script>
+    var sphere=document.getElementsByTagName("tab");
+        function Magic(){
+            this.listNum=5*5*5;  //5行5列5纵
+            this.oUl=document.getElementById("list").children[0];  //ul
+            this.aLi=this.oUl.children;   //li
+            this.aBtn=document.getElementById("btn").getElementsByTagName("li");
+        }
+
+        var newX,newY,lastX,lastY,minuX,minuY,rotateX=0,rotateY=0;
+        document.onmousedown = function(e){
+            //console.log('点击')
+            //console.log(e)
+            //第一次旧的值产生于第一次点击的值
+            lastX = e.clientX
+            lastY = e.clientY
+            this.onmousemove = function(e){
+                //console.log('移动')
+                //console.log(e.clientX,e.clientY)
+                //鼠标的新位置
+                newX = e.clientX
+                newY = e.clientY
+                
+                //新旧位置的差值
+                minuX = lastX - newX
+                minuY = lastY - newY
+                
+                //  乘以一个系数，防止拖动变化效果过快
+                rotateX += minuY*0.2
+                rotateY -= minuX*0.1
+                // console.log(rotateX,rotateY)
+                //新的值在用完之后就变成了旧的值供下次使用
+                lastX = newX
+                lastY = newY
+                document.getElementById('LiList').style.transform = "translateZ(-2000px) rotateX("+rotateX+"deg) rotateY("+rotateY+"deg)";
+            }
+            this.onmouseup = function(){
+                // console.log('松开')
+                this.onmousemove = null   //清除鼠标移动事件
+            }
+        }
+        Magic.prototype={
+            init:function(){
+            for(var i=0;i<this.listNum;i++){
+                var oLi = document.createElement("li")
+                var d=flyData[0];
+                oLi.innerHTML="<b class='liCover'></b>"+"<p class='liTitle'>"+d.type+"</p>"+"<p class='liAuthor'>"+d.author+"</p>"+"<p class='liTime'>"+d.time+"</p>";
+                var tX=Math.random()*6000-3000,
+                    tY=Math.random()*6000-3000,
+                    tZ=Math.random()*6000-3000;
+                oLi.style.transform="translate3D("+tX+"px,"+tY+"px,"+tZ+"px)";
+                this.oUl.appendChild(oLi);
+            }
+            setTimeout(function(){
+             this.grid();
+            }.bind(this),200);
+            this.clickEvent();
+        },
+        clickEvent:function(){
+            //数组映射,通过下标去找
+            var arr=[this.grid,this.helix,this.sphere,this.table];
+            for(var i=0;i<this.aBtn.length;i++){
+               this.aBtn[i].onclick=arr[i].bind(this);
+            }
+        },
+        //网格式布局
+        grid: function() {
+            if(this.grid.arr){
+               for(var i=0;i<this.listNum;i++){
+                 this.aLi[i].style.transform=this.grid.arr[i];
+             }
+            }else{
+               this.grid.arr=[];
+               var disX=350;
+               var disY=350;
+               var disZ=600;
+               for(var i=0;i<this.listNum;i++){
+                  this.aLi.x=i%5;
+                  this.aLi.y=~~(i%25/5);
+                  this.aLi.z=4 - ~~(i/25);
+                  var x=(this.aLi.x-2)*disX;
+                  var y=(this.aLi.y-2)*disY;
+                  var z=(this.aLi.z-2)*disZ;
+                  var val="translate3D("+x+"px,"+y+"px,"+z+"px)";
+                  this.grid.arr[i]=val;
+                  this.aLi[i].style.transform=val;
+
+             }
+           }
+       },
+       //螺旋式布局
+       helix:function(){
+        if(this.helix.arr){
+             for(var i=0;i<this.listNum;i++){
+             this.aLi[i].style.transform=this.helix.arr[i];
+         }
+        }else{
+            this.helix.arr=[];
+            var h=3.7,//环数
+                 num=this.listNum/h,//每环个数
+                 deg=360/num,//每一个li Y旋转的相差值
+                 tY=9,//让每一个li上下位移差
+                 mid=this.listNum/2;//找中间点
+            for(var i=0;i<this.listNum;i++){
+                var val="rotateY("+i*deg+"deg) translateY("+(i-mid)*tY+"px) translateZ(800px)";
+                this.helix.arr[i]=val;
+                this.aLi[i].style.transform=val;
+                // this.aLi[i].style.transform=val;
+               }
+            }
+       },
+       //球形布局
+       sphere: function(params){
+        //    console.log(1111)
+        if (this.sphere.arr) {
+               for (var i = 0; i < this.listNum; i++) {
+                   this.aLi[i].style.transform = this.sphere.arr[i];
+                   console.log(this.sphere.arr)
+               }
+            }else{
+                
+                 console.log(11)
+                 this.sphere.arr = []
+                 for(var i=0;i<this.listNum;i++){
+                     var phi = Math.acos(-1 + (2 * i) / this.listNum);
+                     var theta = Math.sqrt(this.listNum * Math.PI) * phi;
+                    //  var val = "rotateX("+i*deg+"deg) rotateY(" + i * deg +"deg) rotateZ(" + i * deg +"deg) translateZ(800px) translateY(" + (i - mid) * tY +"px) translateX(" + (i - mid) * tY +"px)" 
+                    var val = "translateX("+ 800 * Math.cos(theta) * Math.sin(phi)+"px) translateY("+ 800 * Math.sin(theta) * Math.sin(phi)+"px) translateZ("+ 800 * Math.cos(phi)+"px) rotateY("+ 800 * Math.sin(theta) * Math.sin(phi) +"deg) "
+                    // var val = "translateZ("+i+"px)" 
+                    //  translateX("+i*10+"px)
+                     this.sphere.arr[i] = val
+                     this.aLi[i].style.transform = val
+                 }
+            }
+       },
+       //元素周期表
+       table: function(){
+           console.log(222)
+           if (this.table.arr) {
+               for (var i = 0; i < this.listNum; i++) {
+                   this.aLi[i].style.transform = this.table.arr[i];
+               }
+           } else {
+
+               console.log(11)
+               this.table.arr = []
+               for (var i = 0; i < this.listNum; i++) {
+                  
+                    var val = "rotateX("+20*i+"deg) rotateY(93.5deg) rotateZ(300deg) translateY("+8*i+"px) translateX("+100+"px) translateZ(800px) " 
+                  
+                   this.table.arr[i] = val
+                   this.aLi[i].style.transform = val
+               }
+           }
+        //    document.getElementById('LiList').style.transform="translateZ(-2000px) rotateX(-2.4deg) rotateY(93.5deg)";
+       }
+
+    };
+        var magic=new Magic();
+        magic.init();
+    </script>
+</body>
+</html>
